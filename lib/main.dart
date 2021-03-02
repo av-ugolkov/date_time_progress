@@ -37,9 +37,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: CustomProgress(
-          discreteCustomValue: RestorableDouble(0),
-          continuousStartCustomValue: RestorableDouble(0),
-          continuousEndCustomValue: RestorableDouble(100),
+          discreteCustomValue: 0,
+          continuousStartCustomValue: 0,
+          continuousEndCustomValue: 100,
           divisions: 20,
         ),
       ),

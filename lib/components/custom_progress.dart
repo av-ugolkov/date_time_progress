@@ -21,9 +21,9 @@ Path _downTriangle(double size, Offset thumbCenter) {
 }
 
 class CustomProgress extends StatefulWidget {
-  final RestorableDouble continuousStartCustomValue;
-  final RestorableDouble continuousEndCustomValue;
-  final RestorableDouble discreteCustomValue;
+  final double continuousStartCustomValue;
+  final double continuousEndCustomValue;
+  final double discreteCustomValue;
   final int divisions;
 
   CustomProgress({
@@ -37,25 +37,14 @@ class CustomProgress extends StatefulWidget {
   _CustomProgressState createState() => _CustomProgressState();
 }
 
-class _CustomProgressState extends State<CustomProgress> with RestorationMixin {
-  @override
-  String get restorationId => 'custom_sliders_demo';
+class _CustomProgressState extends State<CustomProgress> {
+  double _discreteCustomValue;
 
   @override
-  void restoreState(RestorationBucket oldBucket, bool initialRestore) {
-    registerForRestoration(
-        widget.continuousStartCustomValue, 'continuous_start_custom_value');
-    registerForRestoration(
-        widget.continuousEndCustomValue, 'continuous_end_custom_value');
-    registerForRestoration(widget.discreteCustomValue, 'discrete_custom_value');
-  }
+  void initState() {
+    super.initState();
 
-  @override
-  void dispose() {
-    widget.continuousStartCustomValue.dispose();
-    widget.continuousEndCustomValue.dispose();
-    widget.discreteCustomValue.dispose();
-    super.dispose();
+    _discreteCustomValue = widget.discreteCustomValue;
   }
 
   @override
@@ -79,15 +68,15 @@ class _CustomProgressState extends State<CustomProgress> with RestorationMixin {
               .copyWith(color: theme.colorScheme.onSurface),
         ),
         child: Slider(
-          value: widget.discreteCustomValue.value,
-          min: widget.continuousStartCustomValue.value,
-          max: widget.continuousEndCustomValue.value,
+          value: _discreteCustomValue,
+          min: widget.continuousStartCustomValue,
+          max: widget.continuousEndCustomValue,
           divisions: widget.divisions,
           semanticFormatterCallback: (value) => value.round().toString(),
-          label: '${widget.discreteCustomValue.value.round()}',
+          label: '${_discreteCustomValue.round()}',
           onChanged: (value) {
             setState(() {
-              widget.discreteCustomValue.value = value;
+              _discreteCustomValue = value;
             });
           },
         ),
