@@ -8,49 +8,53 @@ Path _triangle(double size, Offset thumbCenter, {bool invert = false}) {
   final halfSize = size / 2;
   final sign = invert ? -1 : 1;
   thumbPath.moveTo(
-      thumbCenter.dx - halfSize, thumbCenter.dy + sign * centerHeight);
-  thumbPath.lineTo(thumbCenter.dx, thumbCenter.dy - 2 * sign * centerHeight);
+      thumbCenter.dx - halfSize, thumbCenter.dy + 2 * sign * centerHeight);
+  thumbPath.lineTo(thumbCenter.dx, thumbCenter.dy - sign * centerHeight);
   thumbPath.lineTo(
-      thumbCenter.dx + halfSize, thumbCenter.dy + sign * centerHeight);
+      thumbCenter.dx + halfSize, thumbCenter.dy + 2 * sign * centerHeight);
   thumbPath.close();
   return thumbPath;
 }
 
 Path _downTriangle(double size, Offset thumbCenter) {
-  return _triangle(size, thumbCenter, invert: false);
-}
-
-Path _upTriangle(double size, Offset thumbCenter) {
   return _triangle(size, thumbCenter, invert: true);
 }
 
 class CustomProgress extends StatefulWidget {
+  final RestorableDouble continuousStartCustomValue;
+  final RestorableDouble continuousEndCustomValue;
+  final RestorableDouble discreteCustomValue;
+  final int divisions;
+
+  CustomProgress({
+    @required this.continuousStartCustomValue,
+    @required this.continuousEndCustomValue,
+    @required this.discreteCustomValue,
+    this.divisions = 10,
+  });
+
   @override
   _CustomProgressState createState() => _CustomProgressState();
 }
 
 class _CustomProgressState extends State<CustomProgress> with RestorationMixin {
-  final RestorableDouble _continuousStartCustomValue = RestorableDouble(0);
-  final RestorableDouble _continuousEndCustomValue = RestorableDouble(160);
-  final RestorableDouble _discreteCustomValue = RestorableDouble(20);
-
   @override
   String get restorationId => 'custom_sliders_demo';
 
   @override
   void restoreState(RestorationBucket oldBucket, bool initialRestore) {
     registerForRestoration(
-        _continuousStartCustomValue, 'continuous_start_custom_value');
+        widget.continuousStartCustomValue, 'continuous_start_custom_value');
     registerForRestoration(
-        _continuousEndCustomValue, 'continuous_end_custom_value');
-    registerForRestoration(_discreteCustomValue, 'discrete_custom_value');
+        widget.continuousEndCustomValue, 'continuous_end_custom_value');
+    registerForRestoration(widget.discreteCustomValue, 'discrete_custom_value');
   }
 
   @override
   void dispose() {
-    _continuousStartCustomValue.dispose();
-    _continuousEndCustomValue.dispose();
-    _discreteCustomValue.dispose();
+    widget.continuousStartCustomValue.dispose();
+    widget.continuousEndCustomValue.dispose();
+    widget.discreteCustomValue.dispose();
     super.dispose();
   }
 
@@ -75,15 +79,15 @@ class _CustomProgressState extends State<CustomProgress> with RestorationMixin {
               .copyWith(color: theme.colorScheme.onSurface),
         ),
         child: Slider(
-          value: _discreteCustomValue.value,
-          min: 0,
-          max: 200,
-          divisions: 5,
+          value: widget.discreteCustomValue.value,
+          min: widget.continuousStartCustomValue.value,
+          max: widget.continuousEndCustomValue.value,
+          divisions: widget.divisions,
           semanticFormatterCallback: (value) => value.round().toString(),
-          label: '${_discreteCustomValue.value.round()}',
+          label: '${widget.discreteCustomValue.value.round()}',
           onChanged: (value) {
             setState(() {
-              _discreteCustomValue.value = value;
+              widget.discreteCustomValue.value = value;
             });
           },
         ),
@@ -131,10 +135,23 @@ class _CustomThumbShape extends SliderComponentShape {
       end: sliderTheme.thumbColor,
     );
     final size = _thumbSize * sizeTween.evaluate(enableAnimation);
-    final thumbPath = _downTriangle(size, thumbCenter);
+    final thumbPath = _downTriangle(size, thumbCenter + Offset(0, -5));
     canvas.drawPath(
       thumbPath,
       Paint()..color = colorTween.evaluate(enableAnimation),
+    );
+
+    final slideUpTween = Tween<double>(
+      begin: 0,
+      end: 0,
+    );
+    final slideUpOffset =
+        Offset(0, -slideUpTween.evaluate(activationAnimation));
+    labelPainter.paint(
+      canvas,
+      thumbCenter +
+          slideUpOffset +
+          Offset(-labelPainter.width / 2, -labelPainter.height - 16),
     );
   }
 }
@@ -144,17 +161,11 @@ class _CustomValueIndicatorShape extends SliderComponentShape {
 
   static const double _indicatorSize = 4;
   static const double _disabledIndicatorSize = 3;
-  static const double _slideUpHeight = 20;
 
   @override
   Size getPreferredSize(bool isEnabled, bool isDiscrete) {
     return Size.fromRadius(isEnabled ? _indicatorSize : _disabledIndicatorSize);
   }
-
-  static final Animatable<double> sizeTween = Tween<double>(
-    begin: _disabledIndicatorSize,
-    end: _indicatorSize,
-  );
 
   @override
   void paint(
@@ -170,39 +181,5 @@ class _CustomValueIndicatorShape extends SliderComponentShape {
     double value,
     double textScaleFactor,
     Size sizeWithOverflow,
-  }) {
-    final canvas = context.canvas;
-    final enableColor = ColorTween(
-      begin: sliderTheme.disabledThumbColor,
-      end: sliderTheme.valueIndicatorColor,
-    );
-    final slideUpTween = Tween<double>(
-      begin: 0,
-      end: _slideUpHeight,
-    );
-    final size = _indicatorSize * sizeTween.evaluate(enableAnimation);
-    final slideUpOffset =
-        Offset(0, -slideUpTween.evaluate(activationAnimation));
-    final thumbPath = _upTriangle(size, thumbCenter + slideUpOffset);
-    final paintColor = enableColor
-        .evaluate(enableAnimation)
-        .withAlpha((255 * activationAnimation.value).round());
-    canvas.drawPath(
-      thumbPath,
-      Paint()..color = paintColor,
-    );
-    canvas.drawLine(
-        thumbCenter,
-        thumbCenter + slideUpOffset,
-        Paint()
-          ..color = paintColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2);
-    labelPainter.paint(
-      canvas,
-      thumbCenter +
-          slideUpOffset +
-          Offset(-labelPainter.width / 2, -labelPainter.height - 4),
-    );
-  }
+  }) {}
 }

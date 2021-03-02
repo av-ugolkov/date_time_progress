@@ -36,7 +36,12 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: CustomProgress(),
+        child: CustomProgress(
+          discreteCustomValue: RestorableDouble(0),
+          continuousStartCustomValue: RestorableDouble(0),
+          continuousEndCustomValue: RestorableDouble(100),
+          divisions: 20,
+        ),
       ),
     );
   }
