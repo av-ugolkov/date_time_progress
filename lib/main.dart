@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_components/components/custom_progress.dart';
+import 'package:flutter_components/components/date_time_progress/date_time_progress.dart';
+import 'package:flutter_components/settings.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,6 +11,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      localeListResolutionCallback: (locales, supportedLocales) {
+        appLocale = locales[1];
+        return appLocale;
+      },
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -36,10 +47,10 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: CustomProgress(
-          discreteCustomValue: 0,
-          continuousStartCustomValue: 0,
-          continuousEndCustomValue: 100,
+        child: DateTimeProgress(
+          currentDateTime: DateTime.now(),
+          startDateTime: DateTime.now().add(Duration(days: -10)),
+          finishDateTime: DateTime.now().add(Duration(days: 10)),
           divisions: 20,
         ),
       ),
