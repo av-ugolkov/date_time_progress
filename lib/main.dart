@@ -48,10 +48,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Center(
         child: DateTimeProgress(
-          currentDateTime: DateTime.now(),
-          startDateTime: DateTime.now().add(Duration(days: -10)),
-          finishDateTime: DateTime.now().add(Duration(days: 10)),
-          divisions: 20,
+          currentDateTime: DateTime.now().add(Duration(days: -2)),
+          startDateTime: DateTime.now().add(Duration(days: -100)),
+          finishDateTime: DateTime.now().add(Duration(days: 20)),
+          locale: 'ru_RU',
         ),
       ),
     );
