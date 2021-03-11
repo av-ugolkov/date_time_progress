@@ -139,14 +139,14 @@ packages:
       name: syncfusion_flutter_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "18.4.46"
+    version: "18.4.47"
   syncfusion_flutter_sliders:
     dependency: "direct main"
     description:
       name: syncfusion_flutter_sliders
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "18.4.46-beta"
+    version: "18.4.47-beta"
   term_glyph:
     dependency: transitive
     description:
@@ -176,4 +176,4 @@ packages:
     source: hosted
     version: "2.1.0"
 sdks:
-  dart: ">=2.12.0-0.0 <3.0.0"
+  dart: ">=2.12.0 <3.0.0"
