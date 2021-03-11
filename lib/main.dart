@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_components/components/date_time_progress/date_time_progress.dart';
+import 'package:flutter_components/components/custom_slider/progress_bar.dart';
 import 'package:flutter_components/settings.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       localeListResolutionCallback: (locales, supportedLocales) {
-        appLocale = locales[1];
+        appLocale = locales![1];
         return appLocale;
       },
       title: 'Flutter Demo',
@@ -31,7 +31,10 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({
+    Key? key,
+    required this.title,
+  }) : super(key: key);
 
   final String title;
 
@@ -47,12 +50,20 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: DateTimeProgress(
+        child: Container(
+          //color: Colors.amber,
+          child: ProgressBar(
+            barColor: Colors.blue,
+            thumbColor: Colors.red,
+            thumbSize: 20,
+          ),
+        ),
+        /*DateTimeProgress(
           currentDateTime: DateTime.now().add(Duration(days: -2)),
           startDateTime: DateTime.now().add(Duration(days: -100)),
           finishDateTime: DateTime.now().add(Duration(days: 20)),
           locale: 'ru_RU',
-        ),
+        ),*/
       ),
     );
   }

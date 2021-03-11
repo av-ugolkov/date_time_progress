@@ -23,16 +23,16 @@ class CustomThumbShape extends SliderComponentShape {
   void paint(
     PaintingContext context,
     Offset thumbCenter, {
-    Animation<double> activationAnimation,
-    Animation<double> enableAnimation,
-    bool isDiscrete,
-    TextPainter labelPainter,
-    RenderBox parentBox,
-    SliderThemeData sliderTheme,
-    TextDirection textDirection,
-    double value,
-    double textScaleFactor,
-    Size sizeWithOverflow,
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
   }) {
     final canvas = context.canvas;
     final colorTween = ColorTween(
@@ -43,7 +43,7 @@ class CustomThumbShape extends SliderComponentShape {
     final thumbPath = _downTriangle(size, thumbCenter + Offset(0, -5));
     canvas.drawPath(
       thumbPath,
-      Paint()..color = colorTween.evaluate(enableAnimation),
+      Paint()..color = colorTween.evaluate(enableAnimation)!,
     );
 
     final slideUpTween = Tween<double>(
