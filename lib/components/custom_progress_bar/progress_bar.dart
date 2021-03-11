@@ -44,8 +44,9 @@ class ProgressBar extends LeafRenderObjectWidget {
 
 class RenderProgressBar extends RenderBox {
   static const _minDesiredWidth = 100.0;
+  static const double _semanticActionUnit = 0.05;
 
-  double _currentThmbValue = .5;
+  double _currentThumbValue = .5;
   late HorizontalDragGestureRecognizer _drag;
 
   Color _barColor;
@@ -102,7 +103,7 @@ class RenderProgressBar extends RenderBox {
     canvas.drawLine(point1, point2, barPaint);
 
     final thumbPaint = Paint()..color = thumbColor;
-    final thumbDx = _currentThmbValue * size.width;
+    final thumbDx = _currentThumbValue * size.width;
     final center = Offset(thumbDx, size.height / 2);
     canvas.drawCircle(center, thumbSize / 2, thumbPaint);
 
@@ -136,6 +137,38 @@ class RenderProgressBar extends RenderBox {
   }
 
   @override
+  void describeSemanticsConfiguration(SemanticsConfiguration config) {
+    super.describeSemanticsConfiguration(config);
+
+    config.textDirection = TextDirection.ltr;
+    config.label = 'Progress bar';
+    config.value = '${(_currentThumbValue * 100).round()}%';
+
+    config.onIncrease = increaseAction;
+    final increased = _currentThumbValue + _semanticActionUnit;
+    config.increasedValue = '${((increased).clamp(0.0, 1.0) * 100).round()}%';
+
+    // descrease action
+    config.onDecrease = decreaseAction;
+    final decreased = _currentThumbValue - _semanticActionUnit;
+    config.decreasedValue = '${((decreased).clamp(0.0, 1.0) * 100).round()}%';
+  }
+
+  void increaseAction() {
+    final newValue = _currentThumbValue + _semanticActionUnit;
+    _currentThumbValue = (newValue).clamp(0.0, 1.0);
+    markNeedsPaint();
+    markNeedsSemanticsUpdate();
+  }
+
+  void decreaseAction() {
+    final newValue = _currentThumbValue - _semanticActionUnit;
+    _currentThumbValue = (newValue).clamp(0.0, 1.0);
+    markNeedsPaint();
+    markNeedsSemanticsUpdate();
+  }
+
+  @override
   double computeMinIntrinsicWidth(double height) {
     return _minDesiredWidth;
   }
@@ -160,7 +193,7 @@ class RenderProgressBar extends RenderBox {
 
   void _updateThumbPosition(Offset localPosition) {
     var dx = localPosition.dx.clamp(0, size.width);
-    _currentThmbValue = dx / size.width;
+    _currentThumbValue = dx / size.width;
     markNeedsPaint();
     markNeedsSemanticsUpdate();
   }

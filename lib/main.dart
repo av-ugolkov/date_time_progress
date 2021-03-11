@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_components/components/custom_slider/progress_bar.dart';
+import 'package:flutter_components/components/custom_progress_bar/progress_bar.dart';
 import 'package:flutter_components/settings.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       localeListResolutionCallback: (locales, supportedLocales) {
-        appLocale = locales![1];
+        appLocale = locales![0];
         return appLocale;
       },
       title: 'Flutter Demo',
@@ -46,9 +46,9 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      /*appBar: AppBar(
         title: Text(widget.title),
-      ),
+      ),*/
       body: Center(
         child: Container(
           //color: Colors.amber,

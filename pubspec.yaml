@@ -15,7 +15,6 @@ dependencies:
     sdk: flutter
 
   intl: ^0.17.0
-  syncfusion_flutter_sliders: ^18.4.46-beta
 
   cupertino_icons: ^1.0.0
 
