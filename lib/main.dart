@@ -3,6 +3,8 @@ import 'package:flutter_components/components/custom_progress_bar/progress_bar.d
 import 'package:flutter_components/settings.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'components/date_time_progress/date_time_progress.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -52,18 +54,13 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Container(
           //color: Colors.amber,
-          child: ProgressBar(
-            barColor: Colors.blue,
-            thumbColor: Colors.red,
-            thumbSize: 20,
+          child: DateTimeProgress(
+            current: DateTime.now().add(Duration(days: -2)),
+            start: DateTime.now().add(Duration(days: -100)),
+            finish: DateTime.now().add(Duration(days: 20)),
+            locale: 'ru_RU',
           ),
         ),
-        /*DateTimeProgress(
-          currentDateTime: DateTime.now().add(Duration(days: -2)),
-          startDateTime: DateTime.now().add(Duration(days: -100)),
-          finishDateTime: DateTime.now().add(Duration(days: 20)),
-          locale: 'ru_RU',
-        ),*/
       ),
     );
   }
