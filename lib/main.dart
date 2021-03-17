@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_components/components/custom_progress_bar/progress_bar.dart';
 import 'package:flutter_components/settings.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 import 'components/date_time_progress/date_time_progress.dart';
 
 void main() {
@@ -53,6 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),*/
       body: Center(
         child: Container(
+          width: 300,
           //color: Colors.amber,
           child: DateTimeProgress(
             current: DateTime.now().add(Duration(days: -2)),
