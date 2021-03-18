@@ -254,6 +254,7 @@ class _RenderDateTimeProgress extends RenderBox {
     _paintThumb(canvas);
     _paintStartLabel(canvas);
     _paintFinishLabel(canvas);
+    _paintCurrentLabel(canvas);
 
     canvas.restore();
   }
@@ -317,6 +318,13 @@ class _RenderDateTimeProgress extends RenderBox {
     var labelPainter = _layoutText(_dateFormat.format(finish));
     _finishLabel =
         _calcRect(labelPainter, Offset(size.width - labelPainter.width, 5));
+    labelPainter.paint(canvas, _finishLabel.topLeft);
+  }
+
+  void _paintCurrentLabel(Canvas canvas) {
+    var labelPainter = _layoutText(_dateFormat.format(current));
+    _finishLabel = _calcRect(labelPainter,
+        Offset((size.width * _valueProgress) - labelPainter.width / 2, -35));
     labelPainter.paint(canvas, _finishLabel.topLeft);
   }
 
