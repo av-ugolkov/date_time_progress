@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_components/settings.dart';
+import 'package:flutter_components/util/extension.dart';
 import 'dart:math' as math;
 import 'package:intl/intl.dart';
 
@@ -176,6 +177,9 @@ class _RenderDateTimeProgress extends RenderBox {
   Function? _onChangeStart;
   Function? _onChangeFinish;
 
+  late Rect _startLabel;
+  late Rect _finishLabel;
+
   _RenderDateTimeProgress(
       {required DateTime start,
       required DateTime finish,
@@ -216,17 +220,13 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   void _onTap() {
-    Offset startPos = Offset(0, 0);
-    Offset finishPos = Offset(100, 50);
     var initPos = _tap.initialPosition;
-    if (initPos != null &&
-        startPos.dx < initPos.local.dx &&
-        finishPos.dx > initPos.local.dx &&
-        startPos.dy < initPos.local.dy &&
-        finishPos.dy > initPos.local.dy) {
-      _onChangeStart?.call();
-    } else {
-      _onChangeFinish?.call();
+    if (initPos != null) {
+      if (initPos.local.containedRect(_startLabel)) {
+        _onChangeStart?.call();
+      } else if (initPos.local.containedRect(_finishLabel)) {
+        _onChangeFinish?.call();
+      }
     }
   }
 
@@ -238,7 +238,7 @@ class _RenderDateTimeProgress extends RenderBox {
   @override
   Size computeDryLayout(BoxConstraints constraints) {
     final width = constraints.maxWidth;
-    final height = 10.0;
+    final height = 30.0;
     final size = Size(width, height);
     return constraints.constrain(size);
   }
@@ -309,14 +309,21 @@ class _RenderDateTimeProgress extends RenderBox {
 
   void _paintStartLabel(Canvas canvas) {
     var labelPainter = _layoutText(_dateFormat.format(start));
-    labelPainter.paint(
-        canvas, Offset(0 - labelPainter.width / 2, size.height / 2));
+    _startLabel = _calcRect(labelPainter, Offset(0, 5));
+    labelPainter.paint(canvas, _startLabel.topLeft);
   }
 
   void _paintFinishLabel(Canvas canvas) {
     var labelPainter = _layoutText(_dateFormat.format(finish));
-    labelPainter.paint(
-        canvas, Offset(size.width - labelPainter.width / 2, size.height / 2));
+    _finishLabel =
+        _calcRect(labelPainter, Offset(size.width - labelPainter.width, 5));
+    labelPainter.paint(canvas, _finishLabel.topLeft);
+  }
+
+  Rect _calcRect(TextPainter painter, Offset leftUp) {
+    var offset = Offset(leftUp.dx, size.height / 2 + leftUp.dy);
+    return Rect.fromPoints(
+        offset, offset + Offset(painter.width, painter.height));
   }
 
   TextPainter _layoutText(String text) {
