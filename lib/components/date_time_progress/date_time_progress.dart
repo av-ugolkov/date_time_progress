@@ -21,6 +21,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
   final Function? onChangeFinish;
   final double barHeight;
   final Color? thumbColor;
+  final bool showAlwaysThumb;
   final Color? baseBarColor;
   final Color? progressBarColor;
   final TextStyle? textStyle;
@@ -35,6 +36,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
     this.onChangeFinish,
     this.barHeight = 4,
     this.thumbColor,
+    this.showAlwaysThumb = false,
     this.baseBarColor,
     this.progressBarColor,
     this.textStyle,
@@ -49,17 +51,19 @@ class DateTimeProgress extends LeafRenderObjectWidget {
     final primaryColor = theme.colorScheme.primary;
     final bodyText1 = theme.textTheme.bodyText1;
     return _RenderDateTimeProgress(
-        start: start,
-        finish: finish,
-        onChangeStart: onChangeStart,
-        onChangeFinish: onChangeFinish,
-        current: current,
-        barHeight: barHeight,
-        thumbColor: thumbColor ?? themeThumbColor,
-        baseBarColor: baseBarColor ?? primaryColor.withOpacity(.5),
-        progressBarColor: progressBarColor ?? primaryColor,
-        timeLabelTextStyle: textStyle ?? bodyText1,
-        dateFormatePattern: dateFormatePattern);
+      start: start,
+      finish: finish,
+      onChangeStart: onChangeStart,
+      onChangeFinish: onChangeFinish,
+      current: current,
+      barHeight: barHeight,
+      thumbColor: thumbColor ?? themeThumbColor,
+      showAlwaysThumb: showAlwaysThumb,
+      baseBarColor: baseBarColor ?? primaryColor.withOpacity(.5),
+      progressBarColor: progressBarColor ?? primaryColor,
+      timeLabelTextStyle: textStyle ?? bodyText1,
+      dateFormatePattern: dateFormatePattern,
+    );
   }
 
   @override
@@ -76,6 +80,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
       ..current = current
       ..barHeight = barHeight
       ..thumbColor = thumbColor ?? themeThumbColor
+      ..showAlwaysThumb = showAlwaysThumb
       ..baseBarColor = baseBarColor ?? primaryColor.withOpacity(.5)
       ..progressBarColor = progressBarColor ?? primaryColor
       ..timeLabelTextStyle = textStyle ?? bodyText1
@@ -89,6 +94,8 @@ class DateTimeProgress extends LeafRenderObjectWidget {
 }
 
 class _RenderDateTimeProgress extends RenderBox {
+  final sizeTri = 20.0;
+
   DateTime _start;
   DateTime get start => _start;
   set start(DateTime value) {
@@ -136,6 +143,13 @@ class _RenderDateTimeProgress extends RenderBox {
     if (_thumbColor == value) return;
     _thumbColor = value;
     markNeedsPaint();
+  }
+
+  bool _showAlwaysThumb;
+  bool get showAlwaysThumb => _showAlwaysThumb;
+  set showAlwaysThumb(bool value) {
+    if (_showAlwaysThumb == value) return;
+    _showAlwaysThumb = value;
   }
 
   double _barHeight;
@@ -187,6 +201,7 @@ class _RenderDateTimeProgress extends RenderBox {
       Function? onChangeFinish,
       required DateTime current,
       required Color thumbColor,
+      required bool showAlwaysThumb,
       required double barHeight,
       required Color baseBarColor,
       required Color progressBarColor,
@@ -198,6 +213,7 @@ class _RenderDateTimeProgress extends RenderBox {
         _onChangeStart = onChangeStart,
         _onChangeFinish = onChangeFinish,
         _thumbColor = thumbColor,
+        _showAlwaysThumb = showAlwaysThumb,
         _barHeight = barHeight,
         _baseBarColor = baseBarColor,
         _progressBarColor = progressBarColor,
@@ -254,7 +270,7 @@ class _RenderDateTimeProgress extends RenderBox {
     _paintThumb(canvas);
     _paintStartLabel(canvas);
     _paintFinishLabel(canvas);
-    _paintCurrentLabel(canvas);
+    if (showAlwaysThumb) _paintCurrentLabel(canvas);
 
     canvas.restore();
   }
@@ -283,21 +299,17 @@ class _RenderDateTimeProgress extends RenderBox {
   void _paintThumb(Canvas canvas) {
     final triPaint = Paint()..color = _thumbColor;
 
-    final sizeTri = 20.0;
     canvas.drawPath(
-        _triangle(
-            sizeTri,
-            Offset(
-                size.width * _valueProgress, size.height / 2 - sizeTri / 3.5),
+        _triangle(sizeTri, Offset(size.width * _valueProgress, sizeTri / 3),
             invert: true),
         triPaint);
   }
 
-  Path _triangle(double size, Offset thumbCenter, {bool invert = false}) {
+  Path _triangle(double sizeTri, Offset thumbCenter, {bool invert = false}) {
     final thumbPath = Path();
     final height = math.sqrt(3) / 2;
-    final centerHeight = size * height / 3;
-    final halfSize = size / 2;
+    final centerHeight = sizeTri * height / 3;
+    final halfSize = sizeTri / 2;
     final sign = invert ? -1 : 1;
     thumbPath.moveTo(
         thumbCenter.dx - halfSize, thumbCenter.dy + 2 * sign * centerHeight);
@@ -323,8 +335,10 @@ class _RenderDateTimeProgress extends RenderBox {
 
   void _paintCurrentLabel(Canvas canvas) {
     var labelPainter = _layoutText(_dateFormat.format(current));
-    _finishLabel = _calcRect(labelPainter,
-        Offset((size.width * _valueProgress) - labelPainter.width / 2, -35));
+    _finishLabel = _calcRect(
+        labelPainter,
+        Offset((size.width * _valueProgress) - labelPainter.width / 2,
+            -sizeTri - labelPainter.height));
     labelPainter.paint(canvas, _finishLabel.topLeft);
   }
 
