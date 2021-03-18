@@ -55,9 +55,14 @@ class _MyHomePageState extends State<MyHomePage> {
           //color: Colors.amber,
           child: DateTimeProgress(
             current: DateTime.now().add(Duration(days: -2)),
-            start: DateTime.now().add(Duration(days: -100)),
+            start: DateTime.now().add(Duration(days: -10)),
             finish: DateTime.now().add(Duration(days: 20)),
-            locale: 'ru_RU',
+            onChangeStart: () {
+              print('onChangeStart');
+            },
+            onChangeFinish: () {
+              print('onChangeFinish');
+            },
           ),
         ),
       ),
