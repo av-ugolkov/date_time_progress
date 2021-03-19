@@ -57,11 +57,11 @@ class _MyHomePageState extends State<MyHomePage> {
             current: DateTime.now().add(Duration(days: -2)),
             start: DateTime.now().add(Duration(days: -10)),
             finish: DateTime.now().add(Duration(days: 20)),
-            onChangeStart: () {
-              print('onChangeStart');
+            onChangeStart: (startDateTime) {
+              print('onChangeStart $startDateTime');
             },
-            onChangeFinish: () {
-              print('onChangeFinish');
+            onChangeFinish: (finishDateTime) {
+              print('onChangeFinish $finishDateTime');
             },
           ),
         ),

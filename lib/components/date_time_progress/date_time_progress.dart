@@ -17,8 +17,8 @@ class DateTimeProgress extends LeafRenderObjectWidget {
   final DateTime start;
   final DateTime finish;
   final DateTime current;
-  final Function? onChangeStart;
-  final Function? onChangeFinish;
+  final Function(DateTime)? onChangeStart;
+  final Function(DateTime)? onChangeFinish;
   final double barHeight;
   final Color? thumbColor;
   final bool showAlwaysThumb;
@@ -187,9 +187,10 @@ class _RenderDateTimeProgress extends RenderBox {
     markNeedsLayout();
   }
 
+  late HorizontalDragGestureRecognizer _drag;
   late TapGestureRecognizer _tap;
-  Function? _onChangeStart;
-  Function? _onChangeFinish;
+  Function(DateTime)? _onChangeStart;
+  Function(DateTime)? _onChangeFinish;
 
   late Rect _startLabel;
   late Rect _finishLabel;
@@ -197,8 +198,8 @@ class _RenderDateTimeProgress extends RenderBox {
   _RenderDateTimeProgress(
       {required DateTime start,
       required DateTime finish,
-      Function? onChangeStart,
-      Function? onChangeFinish,
+      Function(DateTime)? onChangeStart,
+      Function(DateTime)? onChangeFinish,
       required DateTime current,
       required Color thumbColor,
       required bool showAlwaysThumb,
@@ -222,6 +223,10 @@ class _RenderDateTimeProgress extends RenderBox {
     _dateFormat = DateFormat(_dateFormatePattern, appLocale.toString());
 
     _tap = TapGestureRecognizer()..onTap = _onTap;
+    _drag = HorizontalDragGestureRecognizer()
+      ..onStart = _onDragStart
+      ..onUpdate = _onDragUpdate
+      ..onEnd = _onDragEnd;
   }
 
   @override
@@ -232,6 +237,7 @@ class _RenderDateTimeProgress extends RenderBox {
     assert(debugHandleEvent(event, entry));
     if (event is PointerDownEvent) {
       _tap.addPointer(event);
+      _drag.addPointer(event);
     }
   }
 
@@ -239,12 +245,18 @@ class _RenderDateTimeProgress extends RenderBox {
     var initPos = _tap.initialPosition;
     if (initPos != null) {
       if (initPos.local.containedRect(_startLabel)) {
-        _onChangeStart?.call();
+        _onChangeStart?.call(_start);
       } else if (initPos.local.containedRect(_finishLabel)) {
-        _onChangeFinish?.call();
+        _onChangeFinish?.call(_finish);
       }
     }
   }
+
+  void _onDragStart(DragStartDetails? details) {}
+
+  void _onDragUpdate(DragUpdateDetails? details) {}
+
+  void _onDragEnd(DragEndDetails? details) {}
 
   @override
   void performLayout() {
