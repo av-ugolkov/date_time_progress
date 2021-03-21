@@ -17,6 +17,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
   final DateTime start;
   final DateTime finish;
   final DateTime current;
+  final Function(DateTime)? onChanged;
   final Function(DateTime)? onChangeStart;
   final Function(DateTime)? onChangeFinish;
   final double barHeight;
@@ -32,6 +33,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
     required this.start,
     required this.finish,
     required this.current,
+    this.onChanged,
     this.onChangeStart,
     this.onChangeFinish,
     this.barHeight = 4,
@@ -53,6 +55,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
     return _RenderDateTimeProgress(
       start: start,
       finish: finish,
+      onChanged: onChanged,
       onChangeStart: onChangeStart,
       onChangeFinish: onChangeFinish,
       current: current,
@@ -189,6 +192,7 @@ class _RenderDateTimeProgress extends RenderBox {
 
   late HorizontalDragGestureRecognizer _drag;
   late TapGestureRecognizer _tap;
+  Function(DateTime)? _onChanged;
   Function(DateTime)? _onChangeStart;
   Function(DateTime)? _onChangeFinish;
 
@@ -198,6 +202,7 @@ class _RenderDateTimeProgress extends RenderBox {
   _RenderDateTimeProgress(
       {required DateTime start,
       required DateTime finish,
+      Function(DateTime)? onChanged,
       Function(DateTime)? onChangeStart,
       Function(DateTime)? onChangeFinish,
       required DateTime current,
@@ -211,6 +216,7 @@ class _RenderDateTimeProgress extends RenderBox {
       : _start = start,
         _finish = finish,
         _current = current,
+        _onChanged = onChanged,
         _onChangeStart = onChangeStart,
         _onChangeFinish = onChangeFinish,
         _thumbColor = thumbColor,
@@ -225,8 +231,7 @@ class _RenderDateTimeProgress extends RenderBox {
     _tap = TapGestureRecognizer()..onTap = _onTap;
     _drag = HorizontalDragGestureRecognizer()
       ..onStart = _onDragStart
-      ..onUpdate = _onDragUpdate
-      ..onEnd = _onDragEnd;
+      ..onUpdate = _onDragUpdate;
   }
 
   @override
@@ -252,11 +257,24 @@ class _RenderDateTimeProgress extends RenderBox {
     }
   }
 
-  void _onDragStart(DragStartDetails? details) {}
+  void _onDragStart(DragStartDetails details) {
+    _onChangedCurrentValue(details.localPosition);
+  }
 
-  void _onDragUpdate(DragUpdateDetails? details) {}
+  void _onDragUpdate(DragUpdateDetails details) {
+    _onChangedCurrentValue(details.localPosition);
+  }
 
-  void _onDragEnd(DragEndDetails? details) {}
+  void _onChangedCurrentValue(Offset localPosition) {
+    var dx = localPosition.dx.clamp(0, size.width);
+    current = DateTime.fromMicrosecondsSinceEpoch(start.microsecondsSinceEpoch +
+        ((finish.microsecondsSinceEpoch - start.microsecondsSinceEpoch) *
+                (dx / size.width))
+            .round());
+    markNeedsPaint();
+    //markNeedsSemanticsUpdate();
+    _onChanged?.call(_current);
+  }
 
   @override
   void performLayout() {
