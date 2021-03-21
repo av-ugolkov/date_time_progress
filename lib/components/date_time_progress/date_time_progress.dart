@@ -267,12 +267,12 @@ class _RenderDateTimeProgress extends RenderBox {
 
   void _onChangedCurrentValue(Offset localPosition) {
     var dx = localPosition.dx.clamp(0, size.width);
-    current = DateTime.fromMicrosecondsSinceEpoch(start.microsecondsSinceEpoch +
-        ((finish.microsecondsSinceEpoch - start.microsecondsSinceEpoch) *
-                (dx / size.width))
-            .round());
+    final duration =
+        finish.microsecondsSinceEpoch - start.microsecondsSinceEpoch;
+    final procent = dx / size.width;
+    current = DateTime.fromMicrosecondsSinceEpoch(
+        start.microsecondsSinceEpoch + (duration * procent).round());
     markNeedsPaint();
-    //markNeedsSemanticsUpdate();
     _onChanged?.call(_current);
   }
 
