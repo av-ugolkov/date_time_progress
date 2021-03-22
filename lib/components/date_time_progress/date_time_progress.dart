@@ -128,7 +128,7 @@ class _RenderDateTimeProgress extends RenderBox {
         finish.microsecondsSinceEpoch - start.microsecondsSinceEpoch;
     final progress =
         current.microsecondsSinceEpoch - start.microsecondsSinceEpoch;
-    final value = progress / duration;
+    var value = progress / duration;
     return value;
   }
 
@@ -148,6 +148,7 @@ class _RenderDateTimeProgress extends RenderBox {
     markNeedsPaint();
   }
 
+  bool _showThumb = false;
   bool _showAlwaysThumb;
   bool get showAlwaysThumb => _showAlwaysThumb;
   set showAlwaysThumb(bool value) {
@@ -213,9 +214,9 @@ class _RenderDateTimeProgress extends RenderBox {
       required Color progressBarColor,
       TextStyle? timeLabelTextStyle,
       required String dateFormatePattern})
-      : _start = start,
-        _finish = finish,
-        _current = current,
+      : _start = start.getDate(),
+        _finish = finish.getDate(),
+        _current = current.getDate(),
         _onChanged = onChanged,
         _onChangeStart = onChangeStart,
         _onChangeFinish = onChangeFinish,
@@ -231,7 +232,8 @@ class _RenderDateTimeProgress extends RenderBox {
     _tap = TapGestureRecognizer()..onTap = _onTap;
     _drag = HorizontalDragGestureRecognizer()
       ..onStart = _onDragStart
-      ..onUpdate = _onDragUpdate;
+      ..onUpdate = _onDragUpdate
+      ..onEnd = _onDragEnd;
   }
 
   @override
@@ -258,6 +260,7 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   void _onDragStart(DragStartDetails details) {
+    _showThumb = true;
     _onChangedCurrentValue(details.localPosition);
   }
 
@@ -265,13 +268,21 @@ class _RenderDateTimeProgress extends RenderBox {
     _onChangedCurrentValue(details.localPosition);
   }
 
+  void _onDragEnd(DragEndDetails details) {
+    _showThumb = false;
+
+    current = current.getDate();
+    markNeedsPaint();
+  }
+
   void _onChangedCurrentValue(Offset localPosition) {
     var dx = localPosition.dx.clamp(0, size.width);
     final duration =
         finish.microsecondsSinceEpoch - start.microsecondsSinceEpoch;
     final procent = dx / size.width;
-    current = DateTime.fromMicrosecondsSinceEpoch(
+    var changeDate = DateTime.fromMicrosecondsSinceEpoch(
         start.microsecondsSinceEpoch + (duration * procent).round());
+    current = changeDate;
     markNeedsPaint();
     _onChanged?.call(_current);
   }
@@ -284,7 +295,7 @@ class _RenderDateTimeProgress extends RenderBox {
   @override
   Size computeDryLayout(BoxConstraints constraints) {
     final width = constraints.maxWidth;
-    final height = 30.0;
+    final height = 40.0;
     final size = Size(width, height);
     return constraints.constrain(size);
   }
@@ -300,8 +311,9 @@ class _RenderDateTimeProgress extends RenderBox {
     _paintThumb(canvas);
     _paintStartLabel(canvas);
     _paintFinishLabel(canvas);
-    if (showAlwaysThumb) _paintCurrentLabel(canvas);
-
+    if (showAlwaysThumb || _showThumb) {
+      _paintCurrentLabel(canvas);
+    }
     canvas.restore();
   }
 

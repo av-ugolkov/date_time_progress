@@ -54,9 +54,9 @@ class _MyHomePageState extends State<MyHomePage> {
           width: 300,
           //color: Colors.amber,
           child: DateTimeProgress(
-            current: DateTime.now().add(Duration(days: -2)),
-            start: DateTime.now().add(Duration(days: -10)),
-            finish: DateTime.now().add(Duration(days: 20)),
+            current: DateTime.now().add(Duration(days: -1)),
+            start: DateTime.now().add(Duration(days: -3)),
+            finish: DateTime.now().add(Duration(days: 3)),
             onChangeStart: (startDateTime) {
               print('onChangeStart $startDateTime');
             },

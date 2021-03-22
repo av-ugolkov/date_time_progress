@@ -12,3 +12,9 @@ extension ExtenSionOffset on Offset {
     return containedRectOffset(rect.topLeft, rect.bottomRight);
   }
 }
+
+extension ExtensionDateTime on DateTime {
+  DateTime getDate() {
+    return DateTime(year, month, day);
+  }
+}
