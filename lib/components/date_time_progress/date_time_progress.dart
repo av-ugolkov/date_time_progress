@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_components/settings.dart';
 import 'package:flutter_components/util/extension.dart';
-import 'dart:math' as math;
 import 'package:intl/intl.dart';
 
 enum TimeLabelLocation {
@@ -97,7 +96,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
 }
 
 class _RenderDateTimeProgress extends RenderBox {
-  final sizeTri = 20.0;
+  final sizeTri = 15.0;
 
   DateTime _start;
   DateTime get start => _start;
@@ -342,22 +341,20 @@ class _RenderDateTimeProgress extends RenderBox {
     final triPaint = Paint()..color = _thumbColor;
 
     canvas.drawPath(
-        _triangle(sizeTri, Offset(size.width * _valueProgress, sizeTri / 3),
-            invert: true),
+        _triangle(
+            sizeTri, Offset(size.width * _valueProgress, size.height / 2)),
         triPaint);
   }
 
-  Path _triangle(double sizeTri, Offset thumbCenter, {bool invert = false}) {
+  Path _triangle(double sizeTri, Offset thumbCenter,
+      {double scaleHeight = 1, bool inverse = false}) {
     final thumbPath = Path();
-    final height = math.sqrt(3) / 2;
-    final centerHeight = sizeTri * height / 3;
-    final halfSize = sizeTri / 2;
-    final sign = invert ? -1 : 1;
-    thumbPath.moveTo(
-        thumbCenter.dx - halfSize, thumbCenter.dy + 2 * sign * centerHeight);
-    thumbPath.lineTo(thumbCenter.dx, thumbCenter.dy - sign * centerHeight);
-    thumbPath.lineTo(
-        thumbCenter.dx + halfSize, thumbCenter.dy + 2 * sign * centerHeight);
+    final revers = inverse ? -1 : 1;
+    thumbPath.moveTo(thumbCenter.dx, thumbCenter.dy);
+    thumbPath.lineTo(thumbCenter.dx - sizeTri / 2,
+        thumbCenter.dy - revers * sizeTri * scaleHeight);
+    thumbPath.lineTo(thumbCenter.dx + sizeTri / 2,
+        thumbCenter.dy - revers * sizeTri * scaleHeight);
     thumbPath.close();
     return thumbPath;
   }
