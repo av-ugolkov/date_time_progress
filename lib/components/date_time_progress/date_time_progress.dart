@@ -123,10 +123,8 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   double get _valueProgress {
-    final duration =
-        finish.microsecondsSinceEpoch - start.microsecondsSinceEpoch;
-    final progress =
-        current.microsecondsSinceEpoch - start.microsecondsSinceEpoch;
+    final duration = finish.difference(start).inSeconds;
+    final progress = current.difference(start).inSeconds;
     var value = progress / duration;
     return value;
   }
@@ -190,6 +188,7 @@ class _RenderDateTimeProgress extends RenderBox {
     markNeedsLayout();
   }
 
+  bool _startDrag = false;
   late HorizontalDragGestureRecognizer _drag;
   late TapGestureRecognizer _tap;
   Function(DateTime)? _onChanged;
@@ -259,28 +258,31 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   void _onDragStart(DragStartDetails details) {
-    _showThumb = true;
-    _onChangedCurrentValue(details.localPosition);
+    if (details.localPosition.dy < size.height / 2) {
+      _startDrag = true;
+      _showThumb = true;
+      _onChangedCurrentValue(details.localPosition);
+    }
   }
 
   void _onDragUpdate(DragUpdateDetails details) {
-    _onChangedCurrentValue(details.localPosition);
+    if (_startDrag) {
+      _onChangedCurrentValue(details.localPosition);
+    }
   }
 
   void _onDragEnd(DragEndDetails details) {
     _showThumb = false;
-
+    _startDrag = false;
     current = current.getDate();
     markNeedsPaint();
   }
 
   void _onChangedCurrentValue(Offset localPosition) {
     var dx = localPosition.dx.clamp(0, size.width);
-    final duration =
-        finish.microsecondsSinceEpoch - start.microsecondsSinceEpoch;
+    final duration = finish.difference(start);
     final procent = dx / size.width;
-    var changeDate = DateTime.fromMicrosecondsSinceEpoch(
-        start.microsecondsSinceEpoch + (duration * procent).round());
+    var changeDate = start.add(duration * procent);
     current = changeDate;
     markNeedsPaint();
     _onChanged?.call(_current);
