@@ -191,6 +191,7 @@ class _RenderDateTimeProgress extends RenderBox {
     markNeedsLayout();
   }
 
+  bool _startDrag = false;
   late HorizontalDragGestureRecognizer _drag;
   late TapGestureRecognizer _tap;
   Function(DateTime)? _onChanged;
@@ -267,12 +268,17 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   void _onDragStart(DragStartDetails details) {
-    _showThumb = true;
-    _onChangedCurrentValue(details.localPosition);
+    if (details.localPosition.dy < size.height / 2) {
+      _startDrag = true;
+      _showThumb = true;
+      _onChangedCurrentValue(details.localPosition);
+    }
   }
 
   void _onDragUpdate(DragUpdateDetails details) {
-    _onChangedCurrentValue(details.localPosition);
+    if (_startDrag) {
+      _onChangedCurrentValue(details.localPosition);
+    }
   }
 
   void _onDragEnd(DragEndDetails details) {
@@ -297,10 +303,10 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   void _onChangedCurrentValue(Offset localPosition) {
-    var dx = localPosition.dx.clamp(0, _sizeProgressBar);
-    final procent = dx / _sizeProgressBar;
-    final duration = finish.difference(start).inSeconds;
-    var changeDate = start.add(Duration(seconds: (duration * procent).round()));
+    var dx = localPosition.dx.clamp(0, size.width);
+    final duration = finish.difference(start);
+    final procent = dx / size.width;
+    var changeDate = start.add(duration * procent);
     current = changeDate;
     _onChanged?.call(_current);
   }
