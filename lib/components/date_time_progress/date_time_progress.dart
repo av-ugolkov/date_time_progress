@@ -54,10 +54,16 @@ class DateTimeProgress extends LeafRenderObjectWidget {
       onChangeFinish: onChangeFinish,
       current: current,
       barHeight: barHeight,
-      thumbColor: thumbColor ?? themeThumbColor,
+      thumbColor: onChanged != null
+          ? thumbColor ?? themeThumbColor
+          : theme.disabledColor,
       showAlwaysThumb: showAlwaysThumb,
-      baseBarColor: baseBarColor ?? primaryColor.withOpacity(.5),
-      progressBarColor: progressBarColor ?? primaryColor,
+      baseBarColor: onChanged != null
+          ? baseBarColor ?? primaryColor.withOpacity(.5)
+          : theme.disabledColor.withOpacity(.5),
+      progressBarColor: onChanged != null
+          ? progressBarColor ?? primaryColor
+          : theme.disabledColor,
       timeLabelTextStyle: textStyle ?? bodyText1,
       dateFormatePattern: dateFormatePattern,
     );
@@ -76,10 +82,16 @@ class DateTimeProgress extends LeafRenderObjectWidget {
       ..finish = finish
       ..current = current
       ..barHeight = barHeight
-      ..thumbColor = thumbColor ?? themeThumbColor
+      ..thumbColor = onChanged != null
+          ? thumbColor ?? themeThumbColor
+          : theme.disabledColor
       ..showAlwaysThumb = showAlwaysThumb
-      ..baseBarColor = baseBarColor ?? primaryColor.withOpacity(.5)
-      ..progressBarColor = progressBarColor ?? primaryColor
+      ..baseBarColor = onChanged != null
+          ? baseBarColor ?? primaryColor.withOpacity(.5)
+          : theme.disabledColor.withOpacity(.5)
+      ..progressBarColor = onChanged != null
+          ? progressBarColor ?? primaryColor
+          : theme.disabledColor
       ..timeLabelTextStyle = textStyle ?? bodyText1
       ..dateFormatePattern = dateFormatePattern;
   }
@@ -244,9 +256,12 @@ class _RenderDateTimeProgress extends RenderBox {
   @override
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
     assert(debugHandleEvent(event, entry));
+
     if (event is PointerDownEvent) {
       _tap.addPointer(event);
-      _drag.addPointer(event);
+      if (_onChanged != null) {
+        _drag.addPointer(event);
+      }
     }
   }
 
