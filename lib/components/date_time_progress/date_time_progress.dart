@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_components/settings.dart';
+import 'package:flutter_components/util/animation_ticker.dart';
 import 'package:flutter_components/util/extension.dart';
 import 'package:intl/intl.dart';
 
@@ -123,13 +124,13 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   double get _valueProgress {
-    final duration =
-        finish.microsecondsSinceEpoch - start.microsecondsSinceEpoch;
-    final progress =
-        current.microsecondsSinceEpoch - start.microsecondsSinceEpoch;
+    final duration = finish.difference(start).inSeconds;
+    final progress = current.difference(start).inSeconds;
     var value = progress / duration;
     return value;
   }
+
+  double get _sizeProgressBar => size.width - sizeTri;
 
   TextStyle? get timeLabelTextStyle => _timeLabelTextStyle;
   TextStyle? _timeLabelTextStyle;
@@ -199,6 +200,9 @@ class _RenderDateTimeProgress extends RenderBox {
   late Rect _startLabel;
   late Rect _finishLabel;
 
+  late AnimationTicker _animationTicker;
+  late DateTime _animateDate;
+
   _RenderDateTimeProgress(
       {required DateTime start,
       required DateTime finish,
@@ -228,6 +232,10 @@ class _RenderDateTimeProgress extends RenderBox {
         _dateFormatePattern = dateFormatePattern {
     _dateFormat = DateFormat(_dateFormatePattern, appLocale.toString());
 
+    _animationTicker = AnimationTicker(
+        durationAnimation: Duration(milliseconds: 200),
+        onChange: _animated,
+        onEnd: _endAnimated);
     _tap = TapGestureRecognizer()..onTap = _onTap;
     _drag = HorizontalDragGestureRecognizer()
       ..onStart = _onDragStart
@@ -268,21 +276,32 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   void _onDragEnd(DragEndDetails details) {
-    _showThumb = false;
+    _animationTicker.startAnimation();
+    _animateDate = current.hour > 12
+        ? current.add(Duration(days: 1)).getDate()
+        : current.getDate();
+  }
 
-    current = current.getDate();
+  void _animated(double progress) {
+    final duration = _animateDate.difference(current).inSeconds;
+    var changeDate =
+        current.add(Duration(seconds: (duration * progress).round()));
+    current = changeDate;
+    _onChanged?.call(_current);
+  }
+
+  void _endAnimated() {
+    _showThumb = false;
+    current = _animateDate.getDate();
     markNeedsPaint();
   }
 
   void _onChangedCurrentValue(Offset localPosition) {
-    var dx = localPosition.dx.clamp(0, size.width);
-    final duration =
-        finish.microsecondsSinceEpoch - start.microsecondsSinceEpoch;
-    final procent = dx / size.width;
-    var changeDate = DateTime.fromMicrosecondsSinceEpoch(
-        start.microsecondsSinceEpoch + (duration * procent).round());
+    var dx = localPosition.dx.clamp(0, _sizeProgressBar);
+    final procent = dx / _sizeProgressBar;
+    final duration = finish.difference(start).inSeconds;
+    var changeDate = start.add(Duration(seconds: (duration * procent).round()));
     current = changeDate;
-    markNeedsPaint();
     _onChanged?.call(_current);
   }
 
@@ -320,8 +339,8 @@ class _RenderDateTimeProgress extends RenderBox {
     final linePaint = Paint()
       ..color = _baseBarColor
       ..strokeWidth = _barHeight;
-    final point1 = Offset(0, size.height / 2);
-    final point2 = Offset(size.width, size.height / 2);
+    final point1 = Offset(sizeTri / 2, size.height / 2);
+    final point2 = point1 + Offset(_sizeProgressBar, 0);
 
     canvas.drawLine(point1, point2, linePaint);
   }
@@ -331,8 +350,8 @@ class _RenderDateTimeProgress extends RenderBox {
       ..color = _progressBarColor
       ..strokeWidth = _barHeight;
 
-    final point1 = Offset(0, size.height / 2);
-    final point2 = Offset(size.width * _valueProgress, size.height / 2);
+    final point1 = Offset(sizeTri / 2, size.height / 2);
+    final point2 = point1 + Offset(_sizeProgressBar * _valueProgress, 0);
 
     canvas.drawLine(point1, point2, linePaint);
   }
@@ -342,7 +361,9 @@ class _RenderDateTimeProgress extends RenderBox {
 
     canvas.drawPath(
         _triangle(
-            sizeTri, Offset(size.width * _valueProgress, size.height / 2)),
+            sizeTri,
+            Offset(sizeTri / 2 + _sizeProgressBar * _valueProgress,
+                size.height / 2)),
         triPaint);
   }
 
@@ -361,22 +382,25 @@ class _RenderDateTimeProgress extends RenderBox {
 
   void _paintStartLabel(Canvas canvas) {
     var labelPainter = _layoutText(_dateFormat.format(start));
-    _startLabel = _calcRect(labelPainter, Offset(0, 5));
+    _startLabel = _calcRect(labelPainter, Offset(sizeTri / 2, 5));
     labelPainter.paint(canvas, _startLabel.topLeft);
   }
 
   void _paintFinishLabel(Canvas canvas) {
     var labelPainter = _layoutText(_dateFormat.format(finish));
-    _finishLabel =
-        _calcRect(labelPainter, Offset(size.width - labelPainter.width, 5));
+    _finishLabel = _calcRect(labelPainter,
+        Offset(sizeTri / 2 + _sizeProgressBar - labelPainter.width, 5));
     labelPainter.paint(canvas, _finishLabel.topLeft);
   }
 
   void _paintCurrentLabel(Canvas canvas) {
-    var labelPainter = _layoutText(_dateFormat.format(current));
+    final label = current.hour > 12 ? current.add(Duration(days: 1)) : current;
+    var labelPainter = _layoutText(_dateFormat.format(label));
     _finishLabel = _calcRect(
         labelPainter,
-        Offset((size.width * _valueProgress) - labelPainter.width / 2,
+        Offset(
+            (sizeTri + _sizeProgressBar * _valueProgress) -
+                labelPainter.width / 2,
             -sizeTri - labelPainter.height));
     labelPainter.paint(canvas, _finishLabel.topLeft);
   }
