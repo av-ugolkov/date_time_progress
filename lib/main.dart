@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_components/settings.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'components/date_time_progress/date_time_progress.dart';
 
 void main() {
@@ -11,15 +9,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      localeListResolutionCallback: (locales, supportedLocales) {
-        appLocale = locales![0];
-        return appLocale;
-      },
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -57,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
             current: DateTime.now().add(Duration(days: -1)),
             start: DateTime.now().add(Duration(days: -3)),
             finish: DateTime.now().add(Duration(days: 3)),
+            dateFormatePattern: 'dd.MM.yy',
             onChangeStart: (startDateTime) {
               print('onChangeStart $startDateTime');
             },

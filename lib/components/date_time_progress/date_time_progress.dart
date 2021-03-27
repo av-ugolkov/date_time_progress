@@ -3,15 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_components/settings.dart';
 import 'package:flutter_components/util/animation_ticker.dart';
 import 'package:flutter_components/util/extension.dart';
 import 'package:intl/intl.dart';
-
-enum TimeLabelLocation {
-  below,
-  sides,
-}
 
 class DateTimeProgress extends LeafRenderObjectWidget {
   final DateTime start;
@@ -187,7 +181,7 @@ class _RenderDateTimeProgress extends RenderBox {
   set dateFormatePattern(String value) {
     if (_dateFormatePattern == value) return;
     _dateFormatePattern = value;
-    _dateFormat = DateFormat(_dateFormatePattern, appLocale.toString());
+    _dateFormat = DateFormat(_dateFormatePattern);
     markNeedsLayout();
   }
 
@@ -231,7 +225,7 @@ class _RenderDateTimeProgress extends RenderBox {
         _progressBarColor = progressBarColor,
         _timeLabelTextStyle = timeLabelTextStyle,
         _dateFormatePattern = dateFormatePattern {
-    _dateFormat = DateFormat(_dateFormatePattern, appLocale.toString());
+    _dateFormat = DateFormat(_dateFormatePattern);
 
     _animationTicker = AnimationTicker(
         durationAnimation: Duration(milliseconds: 200),
