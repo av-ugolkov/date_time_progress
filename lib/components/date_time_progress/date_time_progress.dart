@@ -130,6 +130,8 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   double get _valueProgress {
+    if (current.isBefore(start)) return 0;
+    if (current.isAfter(finish)) return 1;
     final duration = finish.difference(start).inSeconds;
     final progress = current.difference(start).inSeconds;
     var value = progress / duration;
