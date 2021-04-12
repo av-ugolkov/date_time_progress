@@ -11,6 +11,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
   final DateTime start;
   final DateTime finish;
   final DateTime current;
+  final Function(DateTime)? onChange;
   final Function(DateTime)? onChanged;
   final Function(DateTime)? onChangeStart;
   final Function(DateTime)? onChangeFinish;
@@ -27,6 +28,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
     required this.start,
     required this.finish,
     required this.current,
+    this.onChange,
     this.onChanged,
     this.onChangeStart,
     this.onChangeFinish,
@@ -49,6 +51,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
     return _RenderDateTimeProgress(
       start: start,
       finish: finish,
+      onChange: onChange,
       onChanged: onChanged,
       onChangeStart: onChangeStart,
       onChangeFinish: onChangeFinish,
@@ -78,9 +81,11 @@ class DateTimeProgress extends LeafRenderObjectWidget {
     final bodyText1 = theme.textTheme.bodyText1;
 
     renderObject
-      ..start = start
-      ..finish = finish
-      ..current = current
+      ..start = start.getDate()
+      ..finish = finish.getDate()
+      ..current = current.getDate()
+      ..onChange = onChange
+      ..onChanged = onChanged
       ..barHeight = barHeight
       ..thumbColor = onChanged != null
           ? thumbColor ?? themeThumbColor
@@ -202,7 +207,21 @@ class _RenderDateTimeProgress extends RenderBox {
   bool _startDrag = false;
   late HorizontalDragGestureRecognizer _drag;
   late TapGestureRecognizer _tap;
+
+  Function(DateTime)? _onChange;
+  Function(DateTime)? get onChange => _onChange;
+  set onChange(Function(DateTime)? value) {
+    if (_onChange == value) return;
+    _onChange = value;
+  }
+
   Function(DateTime)? _onChanged;
+  Function(DateTime)? get onChanged => _onChanged;
+  set onChanged(Function(DateTime)? value) {
+    if (_onChanged == value) return;
+    _onChanged = value;
+  }
+
   Function(DateTime)? _onChangeStart;
   Function(DateTime)? _onChangeFinish;
 
@@ -215,6 +234,7 @@ class _RenderDateTimeProgress extends RenderBox {
   _RenderDateTimeProgress(
       {required DateTime start,
       required DateTime finish,
+      Function(DateTime)? onChange,
       Function(DateTime)? onChanged,
       Function(DateTime)? onChangeStart,
       Function(DateTime)? onChangeFinish,
@@ -229,6 +249,7 @@ class _RenderDateTimeProgress extends RenderBox {
       : _start = start.getDate(),
         _finish = finish.getDate(),
         _current = current.getDate(),
+        _onChange = onChange,
         _onChanged = onChanged,
         _onChangeStart = onChangeStart,
         _onChangeFinish = onChangeFinish,
@@ -304,13 +325,14 @@ class _RenderDateTimeProgress extends RenderBox {
     var changeDate =
         current.add(Duration(seconds: (duration * progress).round()));
     current = changeDate;
-    _onChanged?.call(_current);
+    _onChange?.call(_current);
   }
 
   void _endAnimated() {
     _showThumb = false;
     current = _animateDate.getDate();
-    markNeedsPaint();
+    _onChanged?.call(_current);
+    markNeedsLayout();
   }
 
   void _onChangedCurrentValue(Offset localPosition) {
@@ -319,7 +341,7 @@ class _RenderDateTimeProgress extends RenderBox {
     final procent = dx / size.width;
     var changeDate = start.add(duration * procent);
     current = changeDate;
-    _onChanged?.call(_current);
+    _onChange?.call(_current);
   }
 
   @override
