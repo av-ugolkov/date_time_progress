@@ -48,6 +48,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
     final themeThumbColor = theme.colorScheme.primary;
     final primaryColor = theme.colorScheme.primary;
     final bodyText1 = theme.textTheme.bodyText1;
+
     return _RenderDateTimeProgress(
       start: start,
       finish: finish,
@@ -67,7 +68,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
       progressBarColor: onChange != null || onChanged != null
           ? progressBarColor ?? primaryColor
           : theme.disabledColor,
-      timeLabelTextStyle: textStyle ?? bodyText1,
+      timeLabelTextStyle: textStyle ?? bodyText1!,
       dateFormatePattern: dateFormatePattern,
     );
   }
@@ -86,6 +87,8 @@ class DateTimeProgress extends LeafRenderObjectWidget {
       ..current = current.getDate()
       ..onChange = onChange
       ..onChanged = onChanged
+      ..onChangeStart = onChangeStart
+      ..onChangeFinish = onChangeFinish
       ..barHeight = barHeight
       ..thumbColor = onChange != null || onChanged != null
           ? thumbColor ?? themeThumbColor
@@ -97,7 +100,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
       ..progressBarColor = onChange != null || onChanged != null
           ? progressBarColor ?? primaryColor
           : theme.disabledColor
-      ..timeLabelTextStyle = textStyle ?? bodyText1
+      ..timeLabelTextStyle = textStyle ?? bodyText1!
       ..dateFormatePattern = dateFormatePattern;
   }
 
@@ -146,9 +149,9 @@ class _RenderDateTimeProgress extends RenderBox {
 
   double get _sizeProgressBar => size.width - _sizeTri;
 
-  TextStyle? get timeLabelTextStyle => _timeLabelTextStyle;
-  TextStyle? _timeLabelTextStyle;
-  set timeLabelTextStyle(TextStyle? value) {
+  TextStyle _timeLabelTextStyle;
+  TextStyle get timeLabelTextStyle => _timeLabelTextStyle;
+  set timeLabelTextStyle(TextStyle value) {
     if (_timeLabelTextStyle == value) return;
     _timeLabelTextStyle = value;
     markNeedsLayout();
@@ -224,7 +227,18 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   Function(DateTime)? _onChangeStart;
+  Function(DateTime)? get onChangeStart => _onChangeStart;
+  set onChangeStart(Function(DateTime)? value) {
+    if (_onChangeStart == value) return;
+    _onChangeStart = value;
+  }
+
   Function(DateTime)? _onChangeFinish;
+  Function(DateTime)? get onChangeFinish => _onChangeFinish;
+  set onChangeFinish(Function(DateTime)? value) {
+    if (_onChangeFinish == value) return;
+    _onChangeFinish = value;
+  }
 
   late Rect _startLabel;
   late Rect _finishLabel;
@@ -245,7 +259,7 @@ class _RenderDateTimeProgress extends RenderBox {
       required double barHeight,
       required Color baseBarColor,
       required Color progressBarColor,
-      TextStyle? timeLabelTextStyle,
+      required TextStyle timeLabelTextStyle,
       required String dateFormatePattern})
       : _start = start.getDate(),
         _finish = finish.getDate(),
@@ -421,13 +435,15 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   void _paintStartLabel(Canvas canvas) {
-    var labelPainter = _layoutText(_dateFormat.format(start));
+    var labelPainter = _layoutText(
+        _dateFormat.format(start), _onChangeStart != null ? Colors.blue : null);
     _startLabel = _calcRect(labelPainter, Offset(_halfSizeTri, 5));
     labelPainter.paint(canvas, _startLabel.topLeft);
   }
 
   void _paintFinishLabel(Canvas canvas) {
-    var labelPainter = _layoutText(_dateFormat.format(finish));
+    var labelPainter = _layoutText(_dateFormat.format(finish),
+        _onChangeFinish != null ? Colors.blue : null);
     _finishLabel = _calcRect(labelPainter,
         Offset(_halfSizeTri + _sizeProgressBar - labelPainter.width, 5));
     labelPainter.paint(canvas, _finishLabel.topLeft);
@@ -435,7 +451,7 @@ class _RenderDateTimeProgress extends RenderBox {
 
   void _paintCurrentLabel(Canvas canvas) {
     final label = current.hour > 12 ? current.add(Duration(days: 1)) : current;
-    var labelPainter = _layoutText(_dateFormat.format(label));
+    var labelPainter = _layoutText(_dateFormat.format(label), null);
     var posX = (_halfSizeTri + _sizeProgressBar * _valueProgress) -
         labelPainter.width / 2;
     if (posX < _halfSizeTri) {
@@ -457,9 +473,10 @@ class _RenderDateTimeProgress extends RenderBox {
         offset, offset + Offset(painter.width, painter.height));
   }
 
-  TextPainter _layoutText(String text) {
+  TextPainter _layoutText(String text, Color? color) {
     TextPainter textPainter = TextPainter(
-      text: TextSpan(text: text, style: _timeLabelTextStyle),
+      text:
+          TextSpan(text: text, style: _timeLabelTextStyle.apply(color: color)),
       textDirection: ui.TextDirection.ltr,
     );
     textPainter.layout(minWidth: 0, maxWidth: double.infinity);
