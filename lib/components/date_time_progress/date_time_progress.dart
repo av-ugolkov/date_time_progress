@@ -111,7 +111,10 @@ class DateTimeProgress extends LeafRenderObjectWidget {
 }
 
 class _RenderDateTimeProgress extends RenderBox {
-  static const double _sizeTri = 15.0;
+  static const double _heightBox = 55;
+  static const double _offsetCentrHeight = 5;
+  static const double _halfHeightBox = _heightBox / 2 + _offsetCentrHeight;
+  static const double _sizeTri = 15;
   static const double _halfSizeTri = _sizeTri / 2;
 
   DateTime _start;
@@ -315,7 +318,7 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   void _onDragStart(DragStartDetails details) {
-    if (details.localPosition.dy < size.height / 2) {
+    if (details.localPosition.dy < _halfHeightBox) {
       _startDrag = true;
       _showThumb = true;
       _onChangedCurrentValue(details.localPosition);
@@ -367,8 +370,7 @@ class _RenderDateTimeProgress extends RenderBox {
   @override
   Size computeDryLayout(BoxConstraints constraints) {
     final width = constraints.maxWidth;
-    final height = 40.0;
-    final size = Size(width, height);
+    final size = Size(width, _heightBox);
     return constraints.constrain(size);
   }
 
@@ -393,7 +395,7 @@ class _RenderDateTimeProgress extends RenderBox {
     final linePaint = Paint()
       ..color = _baseBarColor
       ..strokeWidth = _barHeight;
-    final point1 = Offset(_sizeTri / 2, size.height / 2);
+    final point1 = Offset(_sizeTri / 2, _halfHeightBox);
     final point2 = point1 + Offset(_sizeProgressBar, 0);
 
     canvas.drawLine(point1, point2, linePaint);
@@ -404,7 +406,7 @@ class _RenderDateTimeProgress extends RenderBox {
       ..color = _progressBarColor
       ..strokeWidth = _barHeight;
 
-    final point1 = Offset(_sizeTri / 2, size.height / 2);
+    final point1 = Offset(_sizeTri / 2, _halfHeightBox);
     final point2 = point1 + Offset(_sizeProgressBar * _valueProgress, 0);
 
     canvas.drawLine(point1, point2, linePaint);
@@ -417,7 +419,7 @@ class _RenderDateTimeProgress extends RenderBox {
         _triangle(
             _sizeTri,
             Offset(_halfSizeTri + _sizeProgressBar * _valueProgress,
-                size.height / 2)),
+                _halfHeightBox)),
         triPaint);
   }
 
@@ -468,7 +470,7 @@ class _RenderDateTimeProgress extends RenderBox {
   }
 
   Rect _calcRect(TextPainter painter, Offset leftUp) {
-    var offset = Offset(leftUp.dx, size.height / 2 + leftUp.dy);
+    var offset = Offset(leftUp.dx, _halfHeightBox + leftUp.dy);
     return Rect.fromPoints(
         offset, offset + Offset(painter.width, painter.height));
   }
