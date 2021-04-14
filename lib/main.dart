@@ -53,6 +53,9 @@ class _MyHomePageState extends State<MyHomePage> {
             onChangeFinish: (finishDateTime) {
               print('onChangeFinish $finishDateTime');
             },
+            onChanged: (dateTime) {
+              print(dateTime);
+            },
           ),
         ),
       ),
