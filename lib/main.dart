@@ -32,6 +32,18 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late DateTime _current;
+  late DateTime _start;
+  late DateTime _finish;
+
+  @override
+  void initState() {
+    _current = DateTime.now();
+    _start = DateTime.now().add(Duration(days: -3));
+    _finish = DateTime.now().add(Duration(days: 3));
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,15 +55,29 @@ class _MyHomePageState extends State<MyHomePage> {
           width: 300,
           //color: Colors.amber,
           child: DateTimeProgress(
-            current: DateTime.now().add(Duration(days: -1)),
-            start: DateTime.now().add(Duration(days: -3)),
-            finish: DateTime.now().add(Duration(days: 3)),
+            current: _current,
+            start: _start,
+            finish: _finish,
             dateFormatePattern: 'dd.MM.yy',
-            onChangeStart: (startDateTime) {
-              print('onChangeStart $startDateTime');
+            onChangeStart: (dateTime) async {
+              var datePicker = await showDatePicker(
+                  context: context,
+                  initialDate: dateTime,
+                  firstDate: DateTime(0),
+                  lastDate: _finish);
+              setState(() {
+                _start = datePicker ?? _start;
+              });
             },
-            onChangeFinish: (finishDateTime) {
-              print('onChangeFinish $finishDateTime');
+            onChangeFinish: (dateTime) async {
+              var datePicker = await showDatePicker(
+                  context: context,
+                  initialDate: _finish,
+                  firstDate: _finish,
+                  lastDate: DateTime(0));
+              setState(() {
+                _finish = datePicker ?? _finish;
+              });
             },
           ),
         ),
