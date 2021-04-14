@@ -79,6 +79,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 _finish = datePicker ?? _finish;
               });
             },
+            onChanged: (dateTime) {
+              print(dateTime);
+            },
           ),
         ),
       ),
