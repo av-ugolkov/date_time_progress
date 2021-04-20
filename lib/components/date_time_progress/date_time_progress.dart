@@ -22,6 +22,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
   final Color? progressBarColor;
   final TextStyle? textStyle;
   final String dateFormatePattern;
+  final bool roundingDate;
 
   DateTimeProgress({
     Key? key,
@@ -39,6 +40,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
     this.progressBarColor,
     this.textStyle,
     this.dateFormatePattern = DateFormat.YEAR_NUM_MONTH_DAY,
+    this.roundingDate = false,
   }) : super(key: key);
 
   @override
@@ -50,27 +52,27 @@ class DateTimeProgress extends LeafRenderObjectWidget {
     final bodyText1 = theme.textTheme.bodyText1;
 
     return _RenderDateTimeProgress(
-      start: start,
-      finish: finish,
-      onChange: onChange,
-      onChanged: onChanged,
-      onChangeStart: onChangeStart,
-      onChangeFinish: onChangeFinish,
-      current: current,
-      barHeight: barHeight,
-      thumbColor: onChange != null || onChanged != null
-          ? thumbColor ?? themeThumbColor
-          : theme.disabledColor,
-      showAlwaysThumb: showAlwaysThumb,
-      baseBarColor: onChange != null || onChanged != null
-          ? baseBarColor ?? primaryColor.withOpacity(.5)
-          : theme.disabledColor.withOpacity(.5),
-      progressBarColor: onChange != null || onChanged != null
-          ? progressBarColor ?? primaryColor
-          : theme.disabledColor,
-      timeLabelTextStyle: textStyle ?? bodyText1!,
-      dateFormatePattern: dateFormatePattern,
-    );
+        start: start,
+        finish: finish,
+        onChange: onChange,
+        onChanged: onChanged,
+        onChangeStart: onChangeStart,
+        onChangeFinish: onChangeFinish,
+        current: current,
+        barHeight: barHeight,
+        thumbColor: onChange != null || onChanged != null
+            ? thumbColor ?? themeThumbColor
+            : theme.disabledColor,
+        showAlwaysThumb: showAlwaysThumb,
+        baseBarColor: onChange != null || onChanged != null
+            ? baseBarColor ?? primaryColor.withOpacity(.5)
+            : theme.disabledColor.withOpacity(.5),
+        progressBarColor: onChange != null || onChanged != null
+            ? progressBarColor ?? primaryColor
+            : theme.disabledColor,
+        timeLabelTextStyle: textStyle ?? bodyText1!,
+        dateFormatePattern: dateFormatePattern,
+        roundingDate: roundingDate);
   }
 
   @override
@@ -101,7 +103,8 @@ class DateTimeProgress extends LeafRenderObjectWidget {
           ? progressBarColor ?? primaryColor
           : theme.disabledColor
       ..timeLabelTextStyle = textStyle ?? bodyText1!
-      ..dateFormatePattern = dateFormatePattern;
+      ..dateFormatePattern = dateFormatePattern
+      ..roundingDate = roundingDate;
   }
 
   @override
@@ -200,6 +203,14 @@ class _RenderDateTimeProgress extends RenderBox {
     markNeedsPaint();
   }
 
+  bool _roundingDate;
+  bool get roundingDate => _roundingDate;
+  set roundingDate(bool value) {
+    if (_roundingDate == value) return;
+    _roundingDate = value;
+    markNeedsPaint();
+  }
+
   late DateFormat _dateFormat;
 
   String _dateFormatePattern;
@@ -249,22 +260,23 @@ class _RenderDateTimeProgress extends RenderBox {
   late AnimationTicker _animationTicker;
   late DateTime _animateDate;
 
-  _RenderDateTimeProgress(
-      {required DateTime start,
-      required DateTime finish,
-      Function(DateTime)? onChange,
-      Function(DateTime)? onChanged,
-      Function(DateTime)? onChangeStart,
-      Function(DateTime)? onChangeFinish,
-      required DateTime current,
-      required Color thumbColor,
-      required bool showAlwaysThumb,
-      required double barHeight,
-      required Color baseBarColor,
-      required Color progressBarColor,
-      required TextStyle timeLabelTextStyle,
-      required String dateFormatePattern})
-      : _start = start.getDate(),
+  _RenderDateTimeProgress({
+    required DateTime start,
+    required DateTime finish,
+    Function(DateTime)? onChange,
+    Function(DateTime)? onChanged,
+    Function(DateTime)? onChangeStart,
+    Function(DateTime)? onChangeFinish,
+    required DateTime current,
+    required Color thumbColor,
+    required bool showAlwaysThumb,
+    required double barHeight,
+    required Color baseBarColor,
+    required Color progressBarColor,
+    required TextStyle timeLabelTextStyle,
+    required String dateFormatePattern,
+    required bool roundingDate,
+  })   : _start = start.getDate(),
         _finish = finish.getDate(),
         _current = current.getDate(),
         _onChange = onChange,
@@ -277,7 +289,8 @@ class _RenderDateTimeProgress extends RenderBox {
         _baseBarColor = baseBarColor,
         _progressBarColor = progressBarColor,
         _timeLabelTextStyle = timeLabelTextStyle,
-        _dateFormatePattern = dateFormatePattern {
+        _dateFormatePattern = dateFormatePattern,
+        _roundingDate = roundingDate {
     _dateFormat = DateFormat(_dateFormatePattern);
 
     _animationTicker = AnimationTicker(
@@ -359,7 +372,7 @@ class _RenderDateTimeProgress extends RenderBox {
     final procent = dx / size.width;
     var changeDate = start.add(duration * procent);
     current = changeDate;
-    _onChange?.call(_current);
+    _onChange?.call(roundingDate ? current.getDate() : current);
   }
 
   @override
