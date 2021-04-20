@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'components/date_time_progress/date_time_progress.dart';
+import 'util/extension.dart';
 
 void main() {
   runApp(MyApp());
@@ -38,9 +39,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    _current = DateTime.now();
-    _start = DateTime.now().add(Duration(days: -3));
-    _finish = DateTime.now().add(Duration(days: 3));
+    _current = DateTime.now().getDate();
+    _start = DateTime.now().add(Duration(days: -3)).getDate();
+    _finish = DateTime.now().add(Duration(days: 3)).getDate();
     super.initState();
   }
 
@@ -58,7 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
             current: _current,
             start: _start,
             finish: _finish,
-            dateFormatePattern: 'dd.MM.yy',
+            roundingDate: true,
+            dateFormatePattern: 'dd.MM.yy_HH:ss',
             onChangeStart: (dateTime) async {
               var datePicker = await showDatePicker(
                   context: context,
@@ -72,14 +74,14 @@ class _MyHomePageState extends State<MyHomePage> {
             onChangeFinish: (dateTime) async {
               var datePicker = await showDatePicker(
                   context: context,
-                  initialDate: _finish,
+                  initialDate: dateTime,
                   firstDate: _finish,
-                  lastDate: DateTime(0));
+                  lastDate: DateTime(9999));
               setState(() {
                 _finish = datePicker ?? _finish;
               });
             },
-            onChanged: (dateTime) {
+            onChange: (dateTime) {
               print(dateTime);
             },
           ),
