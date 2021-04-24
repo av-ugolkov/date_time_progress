@@ -86,7 +86,7 @@ class DateTimeProgress extends LeafRenderObjectWidget {
     renderObject
       ..start = start.getDate()
       ..finish = finish.getDate()
-      ..current = current.getDate()
+      ..current = current
       ..onChange = onChange
       ..onChanged = onChanged
       ..onChangeStart = onChangeStart
@@ -276,9 +276,9 @@ class _RenderDateTimeProgress extends RenderBox {
     required TextStyle timeLabelTextStyle,
     required String dateFormatePattern,
     required bool roundingDate,
-  })   : _start = start.getDate(),
+  })  : _start = start.getDate(),
         _finish = finish.getDate(),
-        _current = current.getDate(),
+        _current = current,
         _onChange = onChange,
         _onChanged = onChanged,
         _onChangeStart = onChangeStart,
