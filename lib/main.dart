@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_components/test_render_box.dart';
 import 'components/date_time_progress/date_time_progress.dart';
 import 'util/extension.dart';
 
@@ -37,53 +39,83 @@ class _MyHomePageState extends State<MyHomePage> {
   late DateTime _start;
   late DateTime _finish;
 
+  late TapGestureRecognizer _tap;
+
   @override
   void initState() {
     _current = DateTime.now().getDate();
     _start = DateTime.now().add(Duration(days: -3)).getDate();
     _finish = DateTime.now().add(Duration(days: 3)).getDate();
+
+    _tap = TapGestureRecognizer()..onTap = _onTap;
     super.initState();
+  }
+
+  void _onTap() {
+    var initTap = _tap.initialPosition;
+    print(initTap?.global);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /*appBar: AppBar(
+      appBar: AppBar(
         title: Text(widget.title),
-      ),*/
-      body: Center(
-        child: Container(
-          width: 300,
-          //color: Colors.amber,
-          child: DateTimeProgress(
-            current: _current,
-            start: _start,
-            finish: _finish,
-            roundingDate: true,
-            dateFormatePattern: 'dd.MM.yy_HH:ss',
-            onChangeStart: (dateTime) async {
-              var datePicker = await showDatePicker(
-                  context: context,
-                  initialDate: dateTime,
-                  firstDate: DateTime(0),
-                  lastDate: _finish);
-              setState(() {
-                _start = datePicker ?? _start;
-              });
-            },
-            onChangeFinish: (dateTime) async {
-              var datePicker = await showDatePicker(
-                  context: context,
-                  initialDate: dateTime,
-                  firstDate: _finish,
-                  lastDate: DateTime(9999));
-              setState(() {
-                _finish = datePicker ?? _finish;
-              });
-            },
-            onChange: (dateTime) {
-              print(dateTime);
-            },
+      ),
+      body: Container(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              RichText(
+                text: TextSpan(
+                  text: 'Non touchable. ',
+                  style: TextStyle(color: Colors.black),
+                  children: [
+                    TextSpan(
+                      text: 'Tap here.',
+                      style: TextStyle(color: Colors.blue),
+                      recognizer: _tap,
+                    )
+                  ],
+                ),
+              ),
+              DateTimeProgress(
+                current: _current,
+                start: _start,
+                finish: _finish,
+                roundingDate: true,
+                dateFormatePattern: 'dd.MM.yy_HH:ss',
+                onChangeStart: (dateTime) async {
+                  var datePicker = await showDatePicker(
+                      context: context,
+                      initialDate: dateTime,
+                      firstDate: DateTime(0),
+                      lastDate: _finish);
+                  setState(() {
+                    _start = datePicker ?? _start;
+                  });
+                },
+                onChangeFinish: (dateTime) async {
+                  var datePicker = await showDatePicker(
+                      context: context,
+                      initialDate: dateTime,
+                      firstDate: _finish,
+                      lastDate: DateTime(9999));
+                  setState(() {
+                    _finish = datePicker ?? _finish;
+                  });
+                },
+                onChange: (dateTime) {
+                  print(dateTime);
+                },
+              ),
+              TestRenderBox(
+                onChange: (dateTimeNow) {
+                  print(dateTimeNow);
+                },
+              ),
+            ],
           ),
         ),
       ),
