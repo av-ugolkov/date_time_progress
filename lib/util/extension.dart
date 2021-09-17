@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-extension ExtenSionOffset on Offset {
+extension ExtensionOffset on Offset {
   bool containedRectOffset(Offset leftUp, Offset rightDown) {
     return leftUp.dx <= dx &&
         rightDown.dx >= dx &&

@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_components/test_render_box.dart';
 import 'components/date_time_progress/date_time_progress.dart';
 import 'util/extension.dart';
 
@@ -67,19 +66,6 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RichText(
-                text: TextSpan(
-                  text: 'Non touchable. ',
-                  style: TextStyle(color: Colors.black),
-                  children: [
-                    TextSpan(
-                      text: 'Tap here.',
-                      style: TextStyle(color: Colors.blue),
-                      recognizer: _tap,
-                    )
-                  ],
-                ),
-              ),
               DateTimeProgress(
                 current: _current,
                 start: _start,
@@ -108,11 +94,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 onChange: (dateTime) {
                   print(dateTime);
-                },
-              ),
-              TestRenderBox(
-                onChange: (dateTimeNow) {
-                  print(dateTimeNow);
                 },
               ),
             ],
