@@ -297,7 +297,7 @@ class _RenderDateTimeProgress extends RenderBox {
         durationAnimation: Duration(milliseconds: 200),
         onChange: _animated,
         onEnd: _endAnimated);
-    _tap = TapGestureRecognizer()..onTap = _onTap;
+    _tap = TapGestureRecognizer()..onTapUp = _onTapUp;
     _drag = HorizontalDragGestureRecognizer()
       ..onStart = _onDragStart
       ..onUpdate = _onDragUpdate
@@ -319,12 +319,12 @@ class _RenderDateTimeProgress extends RenderBox {
     }
   }
 
-  void _onTap() {
-    var initPos = _tap.initialPosition;
-    if (initPos != null) {
-      if (initPos.local.containedRect(_startLabel)) {
+  void _onTapUp(TapUpDetails? tapUpDetails) {
+    var local = tapUpDetails?.localPosition;
+    if (local != null) {
+      if (local.containedRect(_startLabel)) {
         _onChangeStart?.call(_start);
-      } else if (initPos.local.containedRect(_finishLabel)) {
+      } else if (local.containedRect(_finishLabel)) {
         _onChangeFinish?.call(_finish);
       }
     }
